@@ -84,6 +84,30 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/teacher',
+    component: Layout,
+    redirect: 'teacher/index',
+    meta: {
+      title: '讲师',
+      icon: 'table'
+    },
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/edu/teacher/index'),
+        name: '讲师列表',
+        meta: { title: '讲师列表', icon: 'table', affix: true }
+      },
+      {
+        path: 'save',
+        component: () => import('@/views/edu/teacher/save'),
+        name: '添加讲师',
+        meta: { title: '添加讲师', icon: 'tree', affix: true }
+      }
+
+    ]
+  },
+  {
     path: '/documentation',
     component: Layout,
     children: [

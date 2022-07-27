@@ -2,6 +2,26 @@
 <template>
   <div class="app-container">
     讲师列表
+    <el-form :inline="true" :model="teacherQueryVo" class="demo-form-inline">
+      <el-form-item label="讲师姓名">
+        <el-input v-model="teacherQueryVo.name" placeholder="讲师姓名" />
+      </el-form-item>
+      <el-form-item label="讲师等级">
+        <el-select v-model="teacherQueryVo.level" placeholder="活动区域">
+          <el-option label="高级讲师" value="1" />
+          <el-option label="首席讲师" value="2" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="创建时间">
+        <el-date-picker v-model="teacherQueryVo.beginTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="创建时间" />
+      </el-form-item>
+      <el-form-item label="创截止时间">
+        <el-date-picker v-model="teacherQueryVo.endTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="创建时间" />
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="fetchData()">查询</el-button>
+      </el-form-item>
+    </el-form>
     <el-table
       v-loading="listLoading"
       :data="list"

@@ -2,6 +2,7 @@ import request from '@/utils/request'
 
 export default {
   getTeacherListPage(current, limit, teacherQueryVo) {
+    console.log(teacherQueryVo)
     return request({
       // url: '/eduService/edu-teacher/pageTeacher/' + current + '/' + limit,
       url: `/eduService/edu-teacher/pageTeacher/${current}/${limit}`,

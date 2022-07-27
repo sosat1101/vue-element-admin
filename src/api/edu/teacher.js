@@ -10,5 +10,11 @@ export default {
       // data 表示把对象变为json传递
       data: teacherQueryVo
     })
+  },
+  removeTeacherByIdRequest(id) {
+    return request({
+      url: `/eduService/edu-teacher/${id}`,
+      method: 'delete'
+    })
   }
 }

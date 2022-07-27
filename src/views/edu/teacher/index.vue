@@ -21,15 +21,11 @@
       <el-form-item>
         <el-button type="primary" @click="fetchData()">查询</el-button>
       </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="resetData()">重置</el-button>
+      </el-form-item>
     </el-form>
-    <el-table
-      v-loading="listLoading"
-      :data="list"
-      element-loading-text="数据加载中"
-      border
-      fit
-      highlight-current-row
-    >
+    <el-table v-loading="listLoading" :data="list" element-loading-text="数据加载中" border fit highlight-current-row>
       <el-table-column label="序号" width="70" align="center">
         <template slot-scope="scope">
           {{ (page - 1) * limit + scope.$index + 1 }}
@@ -42,36 +38,20 @@
           {{ scope.row.level === 1 ? "高级讲师" : "首席讲师" }}
         </template>
       </el-table-column> -->
-      <el-table-column prop="intro" label="资历" />
+      <el-table-column prop="intro" width="500" label="资历" />
       <el-table-column prop="gmtCreate" label="添加时间" width="160" />
       <el-table-column prop="sort" label="排序" width="60" />
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
           <router-link :to="'/edu/teacher/edit/' + scope.row.id">
-            <el-button
-              type="primary"
-              size="mini"
-              icon="el-icon-edit"
-            >修改</el-button>
+            <el-button type="primary" size="mini" icon="el-icon-edit">修改</el-button>
           </router-link>
-          <el-button
-            type="danger"
-            size="mini"
-            icon="el-icon-delete"
-            @click="removeDataById(scope.row.id)"
-          >删除</el-button>
+          <el-button type="danger" size="mini" icon="el-icon-delete" @click="removeTeacherById(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
     <!-- 分页 -->
-    <el-pagination
-      :current-page="page"
-      :page-size="limit"
-      :total="total"
-      style="padding: 30px 0; text-align: center"
-      layout="total, prev, pager, next, jumper"
-      @current-change="fetchData"
-    />
+    <el-pagination :current-page="page" :page-size="limit" :total="total" style="padding: 30px 0; text-align: center" layout="total, prev, pager, next, jumper" @current-change="fetchData" />
   </div>
 </template>
 
@@ -97,7 +77,9 @@ export default {
       teacher
         .getTeacherListPage(this.page, this.limit, this.teacherQueryVo)
         .then((response) => {
-          const { data } = response
+          const {
+            data
+          } = response
           this.total = data.total
           this.list = data.records
           for (let i = 0; i < this.list.length; i++) {
@@ -106,10 +88,36 @@ export default {
               : (this.list[i].level = '金牌')
           }
           this.listLoading = false
-          console.log(this.list)
         })
         .catch((error) => {
           console.log(error)
+        })
+    },
+    resetData() {
+      this.teacherQueryVo = {}
+    },
+    removeTeacherById(id) {
+      this.$confirm('确认删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        teacher.removeTeacherByIdRequest(id).then((response) => {
+          // const { data } = response;
+          if (response.code === 20000) {
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
+            this.fetchData()
+          }
+        })
+      })
+        .catch(() => {
+          // this.$message({
+          //     type: 'info',
+          //     message: '已取消删除'
+          // });
         })
     }
   }

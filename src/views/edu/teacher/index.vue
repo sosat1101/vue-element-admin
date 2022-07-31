@@ -43,7 +43,7 @@
       <el-table-column prop="sort" label="排序" width="60" />
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
-          <router-link :to="'/edu/teacher/edit/' + scope.row.id">
+          <router-link :to="'/teacher/edit/' + scope.row.id">
             <el-button type="primary" size="mini" icon="el-icon-edit">修改</el-button>
           </router-link>
           <el-button type="danger" size="mini" icon="el-icon-delete" @click="removeTeacherById(scope.row.id)">删除</el-button>
@@ -51,7 +51,14 @@
       </el-table-column>
     </el-table>
     <!-- 分页 -->
-    <el-pagination :current-page="page" :page-size="limit" :total="total" style="padding: 30px 0; text-align: center" layout="total, prev, pager, next, jumper" @current-change="fetchData" />
+    <el-pagination
+      :current-page="page"
+      :page-size="limit"
+      :total="total"
+      style="padding: 30px 0; text-align: center"
+      layout="total, prev, pager, next, jumper"
+      @current-change="fetchData"
+    />
   </div>
 </template>
 
@@ -61,7 +68,7 @@ export default {
   data() {
     return {
       page: 1,
-      limit: 3,
+      limit: 5,
       teacherQueryVo: {},
       total: 0,
       list: null,
@@ -72,27 +79,40 @@ export default {
     this.fetchData()
   },
   methods: {
-    fetchData(page = 1) {
+    // fetchData(page = 1) {
+    //   this.page = page
+    //   teacher
+    //     .getTeacherListPage(this.page, this.limit, this.teacherQueryVo)
+    //     .then((response) => {
+    //       const {
+    //         data
+    //       } = response
+    //       this.total = data.total
+    //       this.list = data.records
+    //       for (let i = 0; i < this.list.length; i++) {
+    //         this.list[i].level === 1
+    //           ? (this.list[i].level = '首席')
+    //           : (this.list[i].level = '金牌')
+    //       }
+    //       this.listLoading = false
+    //     })
+    //     .catch((error) => {
+    //       console.log(error)
+    //     })
+    // },
+    async fetchData(page = 1) {
       this.page = page
-      teacher
-        .getTeacherListPage(this.page, this.limit, this.teacherQueryVo)
-        .then((response) => {
-          const {
-            data
-          } = response
-          this.total = data.total
-          this.list = data.records
-          for (let i = 0; i < this.list.length; i++) {
-            this.list[i].level === 1
-              ? (this.list[i].level = '首席')
-              : (this.list[i].level = '金牌')
-          }
-          this.listLoading = false
-        })
-        .catch((error) => {
-          console.log(error)
-        })
+      const { data } = await teacher.getTeacherListPage(this.page, this.limit, this.teacherQueryVo)
+      this.total = data.total
+      this.list = data.records
+      for (let i = 0; i < this.list.length; i++) {
+        this.list[i].level === 1
+          ? (this.list[i].level = '首席')
+          : (this.list[i].level = '金牌')
+      }
+      this.listLoading = false
     },
+
     resetData() {
       this.teacherQueryVo = {}
     },

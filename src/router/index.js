@@ -125,6 +125,43 @@ export const constantRoutes = [
       }
     ]
   },
+
+  {
+    path: '/subject',
+    component: Layout,
+    redirect: 'subject/index',
+    meta: {
+      title: '课程分类管理',
+      icon: 'table'
+    },
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/edu/subject/index'),
+        name: '课程分类列表',
+        meta: { title: '课程分类列表', icon: 'table', affix: true }
+      },
+      {
+        path: 'save',
+        component: () => import('@/views/edu/subject/save'),
+        name: '添加课程分类',
+        meta: { title: '添加课程分类', icon: 'tree', affix: true }
+      }
+    ]
+  },
+  {
+    path: '/documentation',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/documentation/index'),
+        name: 'Documentation',
+        meta: { title: 'Documentation', icon: 'documentation', affix: true }
+      }
+    ]
+  },
+
   {
     path: '/guide',
     component: Layout,

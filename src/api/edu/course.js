@@ -13,7 +13,12 @@ export default {
       url: '/eduService/edu-teacher/getAll',
       method: 'get'
     })
+  },
+  getCourseInfoApi(id) {
+    return request({
+      url: `/eduService/course/getCourseInfo/${id}`,
+      method: 'get'
+    })
   }
-
 }
 

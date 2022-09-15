@@ -38,9 +38,9 @@
       </el-form-item>
 
       <!-- 课程简介 TODO -->
-      <el-form-item label="课程简介">
+      <!-- <el-form-item label="课程简介">
         <el-input v-model="courseInfo.description" placeholder=" " />
-      </el-form-item>
+      </el-form-item> -->
 
       <!-- 课程封面 TODO -->
       <!-- 课程封面-->
@@ -58,7 +58,9 @@
       </el-form-item>
 
       <div>
-        <tinymce v-model="content" :height="300" />
+        <el-form-item label="课程简介">
+          <tinymce v-model="courseInfo.description" :height="300" />
+        </el-form-item>
       </div>
       <!-- <div class="editor-content" v-html="content" /> -->
 
@@ -95,7 +97,8 @@ export default {
         lessonNum: 0,
         description: '',
         cover: ppl,
-        price: 0
+        price: 0,
+        id: ''
       },
       teacherList: [],
       subjectTreeVo: [],
@@ -106,13 +109,33 @@ export default {
     }
   },
   created() {
-    this.subjectTreeGetData()
     this.teacherListGetData()
+    this.subjectTreeGetData()
+    this.initCourseInfo()
   },
   methods: {
+    async initCourseInfo() {
+      if (this.$route.params && this.$route.params.id) {
+        const id = this.$route.params.id
+        const { data } = await course.getCourseInfoApi(id)
+        this.courseInfo = data
+        for (const subject of this.subjectTreeVo) {
+          if (subject.id === this.courseInfo.subjectParentId) {
+            this.subjectChildrenList = subject.children
+            break
+          }
+        }
+      }
+    },
     async subjectTreeGetData() {
+      setTimeout(console.log('subjectTreeGetData'), 2000)
       const { data } = await subject.getSubjectTreeApi()
       this.subjectTreeVo = data
+    },
+    async teacherListGetData() {
+      setTimeout(console.log('teacherListGetData'), 2000)
+      const { data } = await course.getAllTeacherListApi()
+      this.teacherList = data
     },
     subjectLevelOneChanged() {
       for (const subject of this.subjectTreeVo) {
@@ -121,10 +144,6 @@ export default {
           this.courseInfo.subjectId = ''
         }
       }
-    },
-    async teacherListGetData() {
-      const { data } = await course.getAllTeacherListApi()
-      this.teacherList = data
     },
     next() {
       course.saveCourseInfoApi(this.courseInfo).then(response => {

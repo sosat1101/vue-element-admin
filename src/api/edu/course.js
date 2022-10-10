@@ -19,6 +19,32 @@ export default {
       url: `/eduService/course/getCourseInfo/${id}`,
       method: 'get'
     })
+  },
+  getCourseInfoForPublishApi(id) {
+    return request({
+      url: `/eduService/course/getCourseInfoForPublish/${id}`,
+      method: 'get'
+    })
+  },
+  updateCourseInfo(courseInfo) {
+    return request({
+      url: `/eduService/course/updateCourseInfo`,
+      method: 'post',
+      data: courseInfo
+    })
+  },
+  getAllCourseInfoList() {
+    return request({
+      url: `/eduService/course/getAllCourseInfoList`,
+      method: 'get'
+    })
+  },
+  getPageList(pageIndex, pageLimit, eduCourse) {
+    return request({
+      url: `/eduService/course/getPageList/${pageIndex}/${pageLimit}`,
+      method: 'post',
+      data: eduCourse
+    })
   }
 }
 

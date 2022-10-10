@@ -1,6 +1,7 @@
+<!-- eslint-disable vue/html-closing-bracket-newline -->
 <template>
   <div class="app-container">
-    <h2 style="text-align: center;">章节</h2>
+    <h2 style="text-align: center;">发布新课程</h2>
     <el-steps :active="2" process-status="wait" align-center style="margin-bottom: 40px;">
       <el-step title="填写课程基本信息" />
       <el-step title="创建课程大纲" />
@@ -8,6 +9,32 @@
     </el-steps>
 
     <el-button type="text" @click="openChapterDialog()">添加章节</el-button>
+    <ul class="chapterList">
+      <li
+        v-for="(chapter) in chapterVideoList"
+        :key="chapter.id"
+      >
+        <!-- <p> -->
+        {{ chapter.title }}
+        <span class="acts">
+          <el-button style="" type="text" @click="showVideoDia(chapter.id)">添加小节</el-button>
+          <el-button style="" type="text" @click="openEditChatper(chapter)">编辑</el-button>
+          <el-button type="text" @click="removeChapter(chapter.id)">删除</el-button>
+        </span>
+        <!-- </p> -->
+        <ul class="chapterList videoList">
+          <li v-for="(videoItem) in chapter.videoVoList" :key="videoItem.id">
+            <!-- <p> -->
+            {{ videoItem.title }}
+            <span class="acts">
+              <el-button style="" type="text" @click="openEditVideo(videoItem.id)">编辑</el-button>
+              <el-button type="text" @click="removeVideo(videoItem.id)">删除</el-button>
+            </span>
+            <!-- </p> -->
+          </li>
+        </ul>
+      </li>
+    </ul>
     <el-dialog title="添加章节" :visible.sync="dialogFormVisible">
       <el-form :model="chapterInput">
         <el-form-item label="章节标题" :label-width="formLabelWidth">
@@ -40,6 +67,27 @@
         </el-form-item>
         <el-form-item label="上传视频">
           <!-- TODO -->
+          <el-upload
+            :on-success="handleVodUploadSuccess"
+            :on-remove="handleVodRemove"
+            :before-remove="beforeVodRemove"
+            :on-exceed="handleUploadExceed"
+            :name="videoFile"
+            :file-list="fileList"
+            :action="BASE_API+'/eduvod/video/uploadAliyun'"
+            :limit="1"
+            multiple
+            class="upload-demo">
+            <el-button size="small" type="primary">上传视频</el-button>
+            <el-tooltip placement="right-end">
+              <div slot="content">最大支持1G，<br>
+                支持3GP、ASF、AVI、DAT、DV、FLV、F4V、<br>
+                GIF、M2T、M4V、MJ2、MJPEG、MKV、MOV、MP4、<br>
+                MPE、MPG、MPEG、MTS、OGG、QT、RM、RMVB、<br>
+                SWF、TS、VOB、WMV、WEBM 等视频格式上传</div>
+              <i class="el-icon-question" />
+            </el-tooltip>
+          </el-upload>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -48,32 +96,6 @@
       </div>
     </el-dialog>
 
-    <ul class="chapterList">
-      <li
-        v-for="(chapter) in chapterVideoList"
-        :key="chapter.id"
-      >
-        <!-- <p> -->
-        {{ chapter.title }}
-        <span class="acts">
-          <el-button style="" type="text" @click="showVideoDia(chapter.id)">添加小节</el-button>
-          <el-button style="" type="text" @click="openEditChatper(chapter)">编辑</el-button>
-          <el-button type="text" @click="removeChapter(chapter.id)">删除</el-button>
-        </span>
-        <!-- </p> -->
-        <ul class="chapterList videoList">
-          <li v-for="(videoItem) in chapter.videoVoList" :key="videoItem.id">
-            <!-- <p> -->
-            {{ videoItem.title }}
-            <span class="acts">
-              <el-button style="" type="text" @click="openEditVideo(videoItem.id)">编辑</el-button>
-              <el-button type="text" @click="removeVideo(videoItem.id)">删除</el-button>
-            </span>
-            <!-- </p> -->
-          </li>
-        </ul>
-      </li>
-    </ul>
     <el-form label-width="120px">
       <el-form-item>
         <el-button @click="previous">上一步</el-button>
@@ -89,7 +111,13 @@ import videoApi from '@/api/edu/video'
 export default {
   data() {
     return {
-      video: {},
+      BASE_API: process.env.VUE_APP_BASE_API,
+      video: {
+        title: '',
+        sort: 0,
+        videoSourceId: '',
+        videoOriginalName: ''
+      },
       active: 1,
       saveBtnDisabled: false,
       chapterVideoList: [],
@@ -108,7 +136,8 @@ export default {
         resource: '',
         desc: ''
       },
-      formLabelWidth: '120px'
+      formLabelWidth: '120px',
+      fileList: []
     }
   },
   created() {
@@ -119,6 +148,37 @@ export default {
     }
   },
   methods: {
+    openEditVideo() {
+
+    },
+    beforeVodRemove(file, fileList) {
+      return this.$confirm(`确认删除${file.name}吗?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'danger'
+      })
+    },
+    handleVodRemove() {
+      videoApi.deleteAliyunVideo(this.videoInput.videoSourceId).then(res => {
+        if (res.code === 20000) {
+          this.$message({
+            type: 'success',
+            message: '删除成功'
+          })
+          this.fileList = []
+        }
+      })
+    },
+    // 上传视频成功调用的方法
+    handleVodUploadSuccess(response, file, fileList) {
+      response.data.id = this.videoInput.videoSourceId
+      this.videoInput.videoSourceId = response.data.videoId
+      this.videoInput.videoOriginalName = response.data.videoOriginalName
+      // 上传视频名称赋值
+    },
+    handleUploadExceed() {
+      this.$message.warning('想要重新上传视频，请先删除已上传的视频')
+    },
     // =================================小节操作=================================================
     showVideoDia(chapterId) {
       this.dialogVideoFormVisible = true
@@ -228,7 +288,7 @@ export default {
     next() {
       // if (this.active++ > 2) this.active = 0
       this.$router.push({
-        path: '/course/publish/1'
+        path: `/course/publish/${this.courseId}`
       })
     }
   }
